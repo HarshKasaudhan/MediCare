@@ -11,7 +11,8 @@ import CartDrawer from './components/CartDrawer';
 import AuthModal from './components/AuthModal';
 import Footer from './components/Footer';
 
-import { MEDICINES_DATA, searchMedicines } from './data/medicinesData';
+import { MEDICINES_DATA } from './data/medicinesData';
+import { findMatchingMedicine, searchMedicines } from './utils/searchEngine';
 import { LUCKNOW_KENDRAS } from './data/kendrasData';
 
 export default function App() {
@@ -49,18 +50,28 @@ export default function App() {
     }, 3200);
   };
 
-  // Search handler using typo-tolerant fuzzy matching
+  // Search handler using typo-tolerant fuzzy matching from searchEngine.js
   const handleSearch = (query) => {
-    const results = searchMedicines(query);
-    if (results.length > 0) {
-      setSelectedMedicine(results[0]);
-      showToast(`Found match: ${results[0].brandName} (${results[0].savingPercentage}% Generic Saving)`);
+    const matched = findMatchingMedicine(query);
+    if (matched) {
+      setSelectedMedicine(matched);
+      showToast(`💡 Found match: ${matched.brandName || matched.brand_name} (${matched.savingPercentage}% Generic Saving)`);
       const pricingEl = document.getElementById('pricing-engine');
       if (pricingEl) {
         pricingEl.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      showToast(`No exact match for "${query}". Showing available generic equivalents.`);
+      const results = searchMedicines(query);
+      if (results && results.length > 0) {
+        setSelectedMedicine(results[0]);
+        showToast(`💡 Suggested match: ${results[0].brandName || results[0].brand_name} (${results[0].savingPercentage}% Generic Saving)`);
+        const pricingEl = document.getElementById('pricing-engine');
+        if (pricingEl) {
+          pricingEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        showToast(`No exact match for "${query}". Showing available generic equivalents.`);
+      }
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Upload, 
   FileText, 
@@ -12,7 +12,10 @@ import {
   Camera,
   RefreshCw,
   Zap,
-  Info
+  Info,
+  Mic,
+  MicOff,
+  Volume2
 } from 'lucide-react';
 import { OCR_SAMPLE_PRESETS } from '../data/medicinesData';
 
@@ -26,6 +29,9 @@ export default function HeroSection({
   const [activePreset, setActivePreset] = useState(OCR_SAMPLE_PRESETS[0]);
   const [isScanning, setIsScanning] = useState(false);
   const [scanComplete, setScanComplete] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speechError, setSpeechError] = useState(null);
+  const recognitionRef = useRef(null);
 
   const POPULAR_CHIPS = [
     { label: 'Pan 40', query: 'Pan 40' },
@@ -35,6 +41,73 @@ export default function HeroSection({
     { label: 'Rosuvas 10', query: 'Rosuvas 10' },
     { label: 'Dolo 650', query: 'Dolo 650' }
   ];
+
+  // Initialize Speech Recognition if supported in browser
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-IN'; // Indian English tailored for medicine brands
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setSpeechError(null);
+      };
+
+      recognition.onresult = (event) => {
+        const spokenText = event.results[0][0].transcript;
+        if (spokenText) {
+          setSearchInput(spokenText);
+          setIsListening(false);
+          onSearch(spokenText);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        if (event.error !== 'no-speech') {
+          setSpeechError('Could not recognize voice. Please type name.');
+          setTimeout(() => setSpeechError(null), 3000);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+  }, [onSearch]);
+
+  const toggleVoiceSearch = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice search is not supported by your current browser. Please use Chrome, Edge, or type directly.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      try {
+        setSpeechError(null);
+        recognitionRef.current?.start();
+      } catch (err) {
+        recognitionRef.current?.stop();
+        setTimeout(() => recognitionRef.current?.start(), 150);
+      }
+    }
+  };
+
+  // Keep search input synced when medicine is selected or scanned
+  useEffect(() => {
+    if (selectedMedicine?.brandName) {
+      setSearchInput(selectedMedicine.brandName);
+    }
+  }, [selectedMedicine]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -47,6 +120,10 @@ export default function HeroSection({
     setActivePreset(preset);
     setIsScanning(true);
     setScanComplete(false);
+
+    // Auto-populate search input with extracted medicine name
+    const detectedTitle = preset.title.replace(' Gastro Strip', '').replace(' Strip', '').replace(' Blister', '').replace(' Green Pack', '');
+    setSearchInput(detectedTitle);
 
     // Simulate OCR processing time
     setTimeout(() => {
@@ -89,11 +166,13 @@ export default function HeroSection({
               Identical WHO-GMP efficacy, verified quality, zero marketing markup.
             </p>
 
-            {/* Fuzzy Search Bar */}
+            {/* Fuzzy Search Bar with Integrated Voice Search */}
             <div className="w-full max-w-xl mb-5">
               <form 
                 onSubmit={handleSearchSubmit} 
-                className="w-full rounded-2xl bg-white border-2 border-[#D5EFE3] shadow-lg shadow-emerald-900/5 focus-within:border-[#10B981] focus-within:ring-4 focus-within:ring-[#10B981]/15 transition-all p-1.5 sm:p-2 flex items-center gap-2 group"
+                className={`w-full rounded-2xl bg-white border-2 shadow-lg shadow-emerald-900/5 transition-all p-1.5 sm:p-2 flex items-center gap-2 group ${
+                  isListening ? 'border-rose-500 ring-4 ring-rose-500/20' : 'border-[#D5EFE3] focus-within:border-[#10B981] focus-within:ring-4 focus-within:ring-[#10B981]/15'
+                }`}
               >
                 <div className="pl-3 sm:pl-3.5 text-[#059669] shrink-0 group-focus-within:scale-110 transition-transform">
                   <Search className="w-5 h-5" />
@@ -102,9 +181,32 @@ export default function HeroSection({
                   type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="Type brand, active molecule, or symptom..."
+                  placeholder={isListening ? "Listening... Speak medicine name now" : "Type brand, active molecule, or symptom..."}
                   className="flex-1 min-w-0 bg-transparent py-2.5 sm:py-3 px-1 text-slate-900 placeholder:text-slate-400 text-sm sm:text-base focus:outline-none border-none ring-0 font-medium"
                 />
+
+                {/* Voice Search Microphone Button */}
+                <button
+                  type="button"
+                  onClick={toggleVoiceSearch}
+                  title={isListening ? "Click to stop listening" : "Voice search medicine name"}
+                  className={`p-2.5 rounded-xl transition-all cursor-pointer relative shrink-0 ${
+                    isListening
+                      ? 'bg-rose-500 text-white animate-pulse shadow-md shadow-rose-500/40'
+                      : 'bg-emerald-50 text-[#059669] hover:bg-emerald-100 hover:text-[#047857]'
+                  }`}
+                >
+                  {isListening ? (
+                    <Mic className="w-4 h-4 animate-bounce" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                  {isListening && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 animate-ping" />
+                  )}
+                </button>
+
+                {/* Compare Submit Button */}
                 <button
                   type="submit"
                   className="shrink-0 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#113222] hover:bg-[#184630] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
@@ -113,6 +215,19 @@ export default function HeroSection({
                   <ArrowRight className="w-4 h-4 text-[#34D399]" />
                 </button>
               </form>
+
+              {/* Listening feedback or speech error */}
+              {isListening && (
+                <div className="mt-2 text-xs font-bold text-rose-600 flex items-center gap-1.5 animate-in fade-in">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  <span>Listening... Speak clearly (e.g. "Pan 40" or "Augmentin")</span>
+                </div>
+              )}
+              {speechError && (
+                <div className="mt-2 text-xs font-semibold text-amber-600">
+                  {speechError}
+                </div>
+              )}
 
               {/* Quick suggestion tags */}
               <div className="flex flex-wrap items-center gap-2 mt-3">

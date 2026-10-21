@@ -13,7 +13,8 @@ import {
   Search,
   Check
 } from 'lucide-react';
-import { OCR_SAMPLE_PRESETS, searchMedicines } from '../data/medicinesData';
+import { OCR_SAMPLE_PRESETS } from '../data/medicinesData';
+import { findMatchingMedicine, searchMedicines } from '../utils/searchEngine';
 
 export default function PrescriptionModal({ 
   isOpen, 

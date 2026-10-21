@@ -55,6 +55,24 @@ export const LUCKNOW_KENDRAS = [
     popularMoleculesStocked: ["Telma/Telmisartan 40mg", "Shelcal/Calcium D3", "Allegra/Fexofenadine 120mg", "Metformin 500mg"]
   },
   {
+    id: "kendra-aliganj",
+    name: "Jan Aushadhi Kendra - Aliganj",
+    storeCode: "PMBJP-UP-LKO-0188",
+    address: "Shop No. 12, Sector B, Near Post Office & Kapoorthala Crossing, Aliganj, Lucknow",
+    pincode: "226024",
+    coordinates: { lat: 26.8924, lng: 80.9387 },
+    phone: "+91 94154 62109",
+    timings: "09:00 AM - 09:30 PM (Mon-Sat, Sun 10AM-4PM)",
+    pharmacist: "Pradeep Kumar Dixit (B.Pharm, Reg UP-55120)",
+    inStockCount: "1,380+ Medicines Available",
+    isHospitalAdjacent: false,
+    hasRefrigeratedColdChain: true,
+    rating: 4.8,
+    reviewsCount: 290,
+    distanceFromCenterKm: 3.8,
+    popularMoleculesStocked: ["Augmentin 625 Duo", "Pan 40", "Telma 40", "Glycomet 500", "Montair-LC"]
+  },
+  {
     id: "kendra-alambagh",
     name: "Jan Aushadhi Kendra - Alambagh",
     storeCode: "PMBJP-UP-LKO-0310",

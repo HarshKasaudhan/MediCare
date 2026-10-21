@@ -24,6 +24,7 @@ export default function Navbar({
 
   const LUCKNOW_LOCATIONS = [
     { id: 'hazratganj', name: 'Hazratganj, Lucknow', pincode: '226001', landmark: 'Near SPM Civil Hospital' },
+    { id: 'aliganj', name: 'Aliganj, Lucknow', pincode: '226024', landmark: 'Near Kapoorthala & Post Office' },
     { id: 'gomti-nagar', name: 'Gomti Nagar, Lucknow', pincode: '226010', landmark: 'Patrakarpuram' },
     { id: 'chowk', name: 'Chowk / KGMU, Lucknow', pincode: '226003', landmark: 'Opp. Gate 2 KGMU' },
     { id: 'alambagh', name: 'Alambagh, Lucknow', pincode: '226005', landmark: 'Near Metro Station' },

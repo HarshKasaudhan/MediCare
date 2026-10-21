@@ -114,24 +114,25 @@ export default function KendraMapSection({ selectedLocation }) {
 
               {/* Locality labels */}
               <div className="absolute top-8 left-12 text-[11px] font-black tracking-wider text-slate-400">CHOWK / OLD CITY</div>
+              <div className="absolute top-16 left-1/3 text-[11px] font-black tracking-wider text-slate-400">ALIGANJ</div>
               <div className="absolute top-1/2 left-1/3 -translate-y-1/2 text-[11px] font-black tracking-wider text-[#059669]">HAZRATGANJ CENTER</div>
               <div className="absolute top-10 right-14 text-[11px] font-black tracking-wider text-slate-400">INDIRA NAGAR</div>
               <div className="absolute bottom-16 right-10 text-[11px] font-black tracking-wider text-slate-400">GOMTI NAGAR</div>
               <div className="absolute bottom-10 left-12 text-[11px] font-black tracking-wider text-slate-400">ALAMBAGH / CHARBAGH</div>
 
               {/* Interactive Kendra Map Pins */}
-              {LUCKNOW_KENDRAS.map((kendra, idx) => {
+              {LUCKNOW_KENDRAS.map((kendra) => {
                 const isSelected = activeKendra.id === kendra.id;
-                // Relative positioning inside the graphic box
-                const pinPositions = [
-                  { top: '48%', left: '46%' }, // Hazratganj
-                  { top: '22%', left: '26%' }, // KGMU Chowk
-                  { top: '68%', left: '74%' }, // Gomti Nagar
-                  { top: '78%', left: '28%' }, // Alambagh
-                  { top: '24%', left: '72%' }, // Indira Nagar
-                  { top: '56%', left: '38%' }, // Aminabad
-                ];
-                const pos = pinPositions[idx] || { top: '50%', left: '50%' };
+                const pinCoordinates = {
+                  'kendra-civil-hospital': { top: '48%', left: '46%' }, // Hazratganj
+                  'kendra-aliganj': { top: '26%', left: '42%' },        // Aliganj
+                  'kendra-gomti-nagar': { top: '68%', left: '74%' },    // Gomti Nagar
+                  'kendra-kgmu-chowk': { top: '20%', left: '22%' },     // KGMU Chowk
+                  'kendra-alambagh': { top: '78%', left: '28%' },       // Alambagh
+                  'kendra-indira-nagar': { top: '24%', left: '72%' },   // Indira Nagar
+                  'kendra-aminabad': { top: '56%', left: '38%' },       // Aminabad
+                };
+                const pos = pinCoordinates[kendra.id] || { top: '50%', left: '50%' };
 
                 return (
                   <button

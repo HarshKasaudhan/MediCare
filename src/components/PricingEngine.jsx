@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { 
   CheckCircle2, 
   AlertCircle, 
+  AlertTriangle,
   Sparkles, 
   ShieldCheck, 
   TrendingDown, 
@@ -14,7 +15,11 @@ import {
   Calendar,
   Layers,
   Percent,
-  Search
+  Search,
+  Scale,
+  QrCode,
+  Eye,
+  X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -29,6 +34,7 @@ export default function PricingEngine({
   const [supplyMonths, setSupplyMonths] = useState(1);
   const [activeTab, setActiveTab] = useState('comparison'); // 'comparison' | 'calculator' | 'bioequivalence'
   const [internalQuery, setInternalQuery] = useState('');
+  const [showChemistView, setShowChemistView] = useState(false);
 
   if (!selectedMedicine) {
     return null;
@@ -131,16 +137,19 @@ export default function PricingEngine({
                 </span>
               </div>
 
-              {/* The big price drop headline */}
-              <div className="flex flex-wrap items-baseline gap-3">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-black text-white">
-                  ₹{selectedMedicine.prescribedBrand.mrpForTen || selectedMedicine.prescribedBrand.mrp} 
-                  <span className="text-emerald-400 mx-2">→</span> 
-                  ₹{selectedMedicine.janAushadhi.mrp}
+              {/* The big price drop headline requested: "Potential Saving: ₹165 → ₹15 (90% Saved)" */}
+              <div className="space-y-1">
+                <div className="text-xs font-black uppercase tracking-wider text-emerald-300">
+                  Potential Saving Calculation
                 </div>
-                <div className="px-3 py-1 rounded-full bg-emerald-500/30 border border-emerald-400/50 text-[#34D399] text-sm sm:text-base font-extrabold flex items-center gap-1">
-                  <TrendingDown className="w-4 h-4" />
-                  <span>{selectedMedicine.savingPercentage}% Saved</span>
+                <div className="flex flex-wrap items-baseline gap-3">
+                  <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white">
+                    Potential Saving: ₹{selectedMedicine.prescribedBrand.mrpForTen || selectedMedicine.prescribedBrand.mrp} <span className="text-[#34D399]">→</span> ₹{selectedMedicine.janAushadhi.mrp}
+                  </div>
+                  <div className="px-3 py-1 rounded-full bg-emerald-500/30 border border-emerald-400/50 text-[#34D399] text-sm sm:text-base font-extrabold flex items-center gap-1">
+                    <TrendingDown className="w-4 h-4" />
+                    <span>{selectedMedicine.savingPercentage}% Saved</span>
+                  </div>
                 </div>
               </div>
 
@@ -152,9 +161,20 @@ export default function PricingEngine({
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-emerald-200/80">
                 <span><strong>Dosage Form:</strong> {selectedMedicine.dosageForm}</span>
                 <span>•</span>
+                <span><strong>Strength:</strong> {selectedMedicine.strength}</span>
+                <span>•</span>
                 <span><strong>Schedule:</strong> {selectedMedicine.schedule}</span>
                 <span>•</span>
                 <span><strong>Standard:</strong> WHO-GMP Certified</span>
+              </div>
+
+              {/* General Health Cautions & Medical Advice Box */}
+              <div className="mt-3.5 p-3.5 rounded-2xl bg-amber-400/20 border border-amber-300/40 text-xs text-amber-100 flex items-start gap-2.5 shadow-xs">
+                <AlertTriangle className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong className="text-amber-200 font-bold">Medical Caution & Prescription Notice: </strong>
+                  {selectedMedicine.medicalCaution || "Consult your treating doctor or registered pharmacist before switching medicines or altering prescription dosages. Schedule H drugs require valid doctor authorization."}
+                </div>
               </div>
             </div>
 
@@ -181,8 +201,189 @@ export default function PricingEngine({
                 <MapPin className="w-3.5 h-3.5 text-[#34D399]" />
                 <span>Find in Nearest Lucknow Kendra</span>
               </button>
+              <button
+                onClick={() => setShowChemistView(true)}
+                className="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-emerald-50 text-[#113222] text-xs font-black shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <QrCode className="w-4 h-4 text-[#059669]" />
+                <span>Show to Chemist (Counter View)</span>
+              </button>
             </div>
 
+          </div>
+        </div>
+
+        {/* TIERED MARKET ALTERNATIVES TABLE */}
+        <div className="rounded-3xl bg-white border border-[#D5EFE3] shadow-lg p-6 sm:p-8 mb-8 overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#059669] uppercase tracking-wider mb-1">
+                <Scale className="w-3.5 h-3.5" />
+                <span>Zero-Hallucination Price Discovery</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-[#113222]">
+                Tiered Market Alternatives Table
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Comparison across 3 verified drug tiers for <strong>{selectedMedicine.brandName}</strong> ({selectedMedicine.salt})
+              </p>
+            </div>
+            <span className="text-xs bg-[#E6F4F1] text-[#065F46] font-bold px-3 py-1.5 rounded-full border border-[#D5EFE3] self-start sm:self-auto">
+              NPPA & PMBJP Official Catalog
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b-2 border-slate-200 text-slate-400 uppercase tracking-wider font-bold">
+                  <th className="py-3 px-4">Category / Tier</th>
+                  <th className="py-3 px-4">Brand / Generic Name</th>
+                  <th className="py-3 px-4">Manufacturer Company</th>
+                  <th className="py-3 px-4 text-right">Price (₹)</th>
+                  <th className="py-3 px-4 text-center">Savings Label</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium">
+                {/* Tier 1: Jan Aushadhi Generic */}
+                <tr className="bg-emerald-50/70 hover:bg-emerald-50 transition-colors">
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <span className="px-2.5 py-1 rounded-full bg-[#10B981] text-white font-extrabold text-[11px] shadow-2xs">
+                      Tier 1: Jan Aushadhi Generic
+                    </span>
+                    <div className="text-[10px] text-emerald-800 font-bold mt-1">Cheapest Subsidized (PMBJP)</div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="font-extrabold text-slate-900 text-sm">
+                      {selectedMedicine.janAushadhi.name}
+                    </div>
+                    <div className="text-[10px] font-mono text-[#047857]">
+                      Code: {selectedMedicine.janAushadhi.code} • {selectedMedicine.janAushadhi.packaging}
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="text-slate-800 font-bold">{selectedMedicine.janAushadhi.manufacturer}</div>
+                    <div className="text-[10px] text-slate-500">WHO-GMP & NABL Lab Certified</div>
+                  </td>
+                  <td className="py-4 px-4 text-right whitespace-nowrap">
+                    <div className="text-base font-black text-[#047857]">₹{selectedMedicine.janAushadhi.mrp}</div>
+                    <div className="text-[10px] text-slate-500">₹{selectedMedicine.janAushadhi.pricePerUnit.toFixed(2)} / unit</div>
+                  </td>
+                  <td className="py-4 px-4 text-center whitespace-nowrap">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-[#047857] font-black text-xs">
+                      Save ₹{totalSavings.toFixed(1)} ({savingPercent}% Saved)
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-right whitespace-nowrap">
+                    <button
+                      onClick={handleSwitchToGeneric}
+                      className="px-3.5 py-2 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                    >
+                      Switch & Save
+                    </button>
+                  </td>
+                </tr>
+
+                {/* Tier 2: Trusted Branded Generic */}
+                <tr className="hover:bg-slate-50/80 transition-colors">
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-extrabold text-[11px]">
+                      Tier 2: Branded Generic
+                    </span>
+                    <div className="text-[10px] text-blue-700 font-bold mt-1">NPPA Ceiling Capped</div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="font-bold text-slate-900 text-sm">
+                      {selectedMedicine.brandedGeneric.name}
+                    </div>
+                    <div className="text-[10px] text-slate-500">
+                      {selectedMedicine.brandedGeneric.packaging}
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="text-slate-800 font-bold">{selectedMedicine.brandedGeneric.manufacturer}</div>
+                    <div className="text-[10px] text-slate-500">NPPA Cap: ₹{selectedMedicine.brandedGeneric.nppaCeilingPrice}</div>
+                  </td>
+                  <td className="py-4 px-4 text-right whitespace-nowrap">
+                    <div className="text-base font-bold text-slate-900">₹{selectedMedicine.brandedGeneric.mrp}</div>
+                    <div className="text-[10px] text-slate-500">₹{selectedMedicine.brandedGeneric.pricePerUnit.toFixed(2)} / unit</div>
+                  </td>
+                  <td className="py-4 px-4 text-center whitespace-nowrap">
+                    <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-xs">
+                      Save ₹{(prescribedTotal - brandedGenericTotal).toFixed(1)} ({Math.round(((prescribedTotal - brandedGenericTotal)/prescribedTotal)*100)}% Saved)
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-right whitespace-nowrap">
+                    <button
+                      onClick={() => {
+                        onAddToCart({
+                          id: selectedMedicine.id + '-branded-generic',
+                          name: selectedMedicine.brandedGeneric.name,
+                          variant: 'NPPA Branded Generic',
+                          brandEquivalent: selectedMedicine.brandName,
+                          mrp: selectedMedicine.brandedGeneric.mrp,
+                          quantity: 1,
+                          savings: prescribedTotal - brandedGenericTotal
+                        });
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all cursor-pointer"
+                    >
+                      Add Generic
+                    </button>
+                  </td>
+                </tr>
+
+                {/* Tier 3: Original Prescribed Brand */}
+                <tr className="hover:bg-slate-50/80 transition-colors">
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-extrabold text-[11px]">
+                      Tier 3: Prescribed Brand
+                    </span>
+                    <div className="text-[10px] text-rose-700 font-bold mt-1">Doctor Prescription Baseline</div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="font-bold text-slate-900 text-sm">
+                      {selectedMedicine.prescribedBrand.name}
+                    </div>
+                    <div className="text-[10px] text-slate-500">
+                      {selectedMedicine.prescribedBrand.packaging}
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="text-slate-800 font-bold">{selectedMedicine.prescribedBrand.manufacturer}</div>
+                    <div className="text-[10px] text-slate-500">Innovator / Prescribed Brand</div>
+                  </td>
+                  <td className="py-4 px-4 text-right whitespace-nowrap">
+                    <div className="text-base font-bold text-rose-950">₹{selectedMedicine.prescribedBrand.mrpForTen || selectedMedicine.prescribedBrand.mrp}</div>
+                    <div className="text-[10px] text-slate-500">₹{selectedMedicine.prescribedBrand.pricePerUnit.toFixed(2)} / unit</div>
+                  </td>
+                  <td className="py-4 px-4 text-center whitespace-nowrap">
+                    <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 font-bold text-xs">
+                      Baseline (0%)
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-right whitespace-nowrap">
+                    <button
+                      onClick={() => {
+                        onAddToCart({
+                          id: selectedMedicine.id + '-prescribed-brand',
+                          name: selectedMedicine.prescribedBrand.name,
+                          variant: 'Original Prescribed Brand',
+                          brandEquivalent: selectedMedicine.brandName,
+                          mrp: selectedMedicine.prescribedBrand.mrpForTen || selectedMedicine.prescribedBrand.mrp,
+                          quantity: 1,
+                          savings: 0
+                        });
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold text-xs border border-slate-200 transition-all cursor-pointer"
+                    >
+                      Add Baseline
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -521,6 +722,94 @@ export default function PricingEngine({
             </div>
           </div>
         </div>
+
+        {/* SHOW TO CHEMIST (COUNTER VIEW MODAL) */}
+        {showChemistView && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border-4 border-[#10B981] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              {/* Counter View Header */}
+              <div className="bg-[#113222] text-white p-5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#34D399] flex items-center justify-center text-[#113222] font-black">
+                    <QrCode className="w-5 h-5 stroke-[2.5]" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-[#34D399] uppercase tracking-wider">
+                      Pharmacist / Kendra Counter View
+                    </div>
+                    <div className="text-base font-black">
+                      PMBJP Generic Dispensing Token
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowChemistView(false)}
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Counter High-Visibility Content */}
+              <div className="p-6 space-y-4 bg-white text-slate-900">
+                <div className="p-4 rounded-2xl bg-[#E6F4F1] border-2 border-[#10B981]">
+                  <div className="text-xs font-black uppercase text-[#047857] tracking-wider mb-1">
+                    Jan Aushadhi Generic Substitute
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black text-[#113222] tracking-tight leading-snug">
+                    {selectedMedicine.janAushadhi.name}
+                  </div>
+                  <div className="mt-2 text-xs font-bold text-slate-700 font-mono">
+                    Official PMBJP Code: <span className="bg-white px-2 py-0.5 rounded border border-[#A7F3D0] text-[#059669] font-black">{selectedMedicine.janAushadhi.code}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="text-slate-400 font-bold uppercase text-[10px]">Active Molecule & Strength</div>
+                    <div className="font-extrabold text-slate-900 text-xs sm:text-sm mt-0.5">{selectedMedicine.salt}</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="text-slate-400 font-bold uppercase text-[10px]">Prescribed Brand Reference</div>
+                    <div className="font-extrabold text-slate-900 text-xs sm:text-sm mt-0.5">{selectedMedicine.brandName}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <div>
+                    <div className="text-[10px] text-emerald-800 font-bold uppercase">Govt Capped Jan Aushadhi Rate</div>
+                    <div className="text-2xl font-black text-[#047857]">₹{selectedMedicine.janAushadhi.mrp}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] text-slate-500 font-bold">Standard Packaging</div>
+                    <div className="text-xs sm:text-sm font-bold text-slate-800">{selectedMedicine.janAushadhi.packaging}</div>
+                  </div>
+                </div>
+
+                {/* Simulated Barcode for Chemist Scanning */}
+                <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 text-center">
+                  <div className="font-mono text-xl tracking-[0.3em] font-black text-slate-700 py-1 select-all">
+                    ||||||||| | ||||| |||| ||||||
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-mono">
+                    {selectedMedicine.janAushadhi.code}-LKO-UP
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-slate-500 text-center leading-relaxed">
+                  Under the Pradhan Mantri Bharatiya Jan Aushadhi Pariyojana mandate, this formulation is bioequivalent and certified for generic substitution.
+                </div>
+
+                <button
+                  onClick={() => setShowChemistView(false)}
+                  className="w-full py-3 rounded-xl bg-[#113222] hover:bg-[#184630] text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                >
+                  Done / Close Counter View
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </section>
