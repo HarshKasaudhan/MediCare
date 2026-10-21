@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --brand-dark: #113222;
+    --mint-bg: #E6F4F1;
+    --mint-gradient-end: #D5EFE3;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(180deg, #E6F4F1 0%, #D5EFE3 100%);
+    background-attachment: fixed;
+    color: #1e293b;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .font-heading {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Custom Utilities for Pharmacy Theme */
+.bg-mint-gradient {
+  background: linear-gradient(135deg, #E6F4F1 0%, #D5EFE3 50%, #C8EBD9 100%);
+}
+
+.text-brand-dark {
+  color: #113222;
+}
+
+.bg-brand-dark {
+  background-color: #113222;
+}
+
+.border-brand-dark {
+  border-color: #113222;
+}
+
+/* Glassmorphism cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Dashed prescription border with slight bounce */
+.prescription-dropzone {
+  background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(240,253,244,0.85) 100%);
+  border: 2px dashed #10B981;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prescription-dropzone:hover {
+  border-color: #047857;
+  box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.2);
+}
+
+/* Scanning laser animation */
+@keyframes laserScan {
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 95%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.8;
+  }
+}
+
+.animate-laser {
+  animation: laserScan 2.4s ease-in-out infinite;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #E6F4F1;
+}
+::-webkit-scrollbar-thumb {
+  background: #A7F3D0;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #34D399;
+}
